@@ -1,8 +1,11 @@
-from datetime import datetime
-from datetime import date
-import time
 from mcp9808 import mcp9808 as MCP9808
 import mysql.connector
+import time
+import threading
+
+
+
+st = time.time()
 
 sensor = MCP9808.MCP9808(0x18)
 sensor2 = MCP9808.MCP9808(0x19)
@@ -33,15 +36,36 @@ def insert_varibles_into_table(deviceID,temperature):
             connection.close()
 
 
+def get_data():
+    if(sensor.begin() == True):
+        i=0
+        for i in range(2):
+            temp = sensor.read_temp()
+            insert_varibles_into_table(1,temp)
+            print("Device 1:",temp)
+            time.sleep(1.5)
 
-if(sensor.begin() == True and sensor2.begin() == True):
-    while True:
-        temp = sensor.read_temp()
-        insert_varibles_into_table(1,temp)
-        print("Device 1:",temp)
+def get_data2():
+    if(sensor2.begin() == True):
+        i=0
+        for i in range(2):
+            temp2 = sensor2.read_temp()
+            insert_varibles_into_table(2,temp2)
+            print("Device 2:",temp2)
+            time.sleep(1.5)
 
-        temp2 = sensor2.read_temp()
-        insert_varibles_into_table(2,temp2)
-        print("Device 2:",temp2)
-        print("-----------------")
-        time.sleep(3)
+thread1 = threading.Thread(target=get_data, args=())
+thread2= threading.Thread(target=get_data2, args=())
+
+thread1.start()
+thread2.start()
+
+thread1.join()
+thread2.join()
+
+
+et = time.time()
+
+# get the execution time
+elapsed_time = et - st
+print('Execution time:', elapsed_time, 'seconds')
