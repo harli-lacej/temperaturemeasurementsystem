@@ -35,29 +35,36 @@ def insert_varibles_into_table(deviceID,temperature):
             cursor.close()
             connection.close()
 
-
+lock = threading.Lock()
 def get_data():
-    if(sensor.begin() == True):
-        i=0
-        for i in range(2):
+    i=0
+
+    for i in range(10):
+        lock.acquire()
+        if(sensor.begin() == True):
             temp = sensor.read_temp()
             insert_varibles_into_table(1,temp)
             print("Device 1:",temp)
             time.sleep(1.5)
+        lock.release()
 
+
+
+        
+    #lock.release()
 def get_data2():
-    if(sensor2.begin() == True):
-        i=0
-        for i in range(2):
-            temp2 = sensor2.read_temp()
-            insert_varibles_into_table(2,temp2)
-            print("Device 2:",temp2)
-            time.sleep(1.5)
+    a=0
+    for a in range(10):
+        if(sensor2.begin() == True):
+                temp2 = sensor2.read_temp()
+                insert_varibles_into_table(2,temp2)
+                print("Device 2:",temp2)
+                time.sleep(1.5)
+
 
 thread1 = threading.Thread(target=get_data, args=())
-thread2= threading.Thread(target=get_data2, args=())
-
 thread1.start()
+thread2= threading.Thread(target=get_data2, args=())
 thread2.start()
 
 thread1.join()
