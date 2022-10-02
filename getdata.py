@@ -15,7 +15,7 @@ def insert_varibles_into_table(deviceID,temperature):
         connection = mysql.connector.connect(
         host="htl-projekt.com",
         user="harlilacej",
-        password="!Insy_2021$",
+        password="*********",
         port=33060,
         database="2023_5ay_harlilacej_ecoSense_tempeature"
         )
