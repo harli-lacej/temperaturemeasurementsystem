@@ -39,11 +39,14 @@ MCP9808_ALERT_OUT_CONTROL = 0x0008
 MCP9808_ALERT_OUT_SELECT = 0x0002
 MCP9808_ALERT_OUT_POLARITY= 0x0002
 MCP9808_ALERT_OUT_INTERRUPT = 0x0001
+
+
 '''
     """Creating a class named MCP9808 to represent the temperature sensor MCP9808
     """
 
 '''
+
 
 class MCP9808(object):
 
@@ -53,27 +56,18 @@ class MCP9808(object):
             self.sensor = i2c.get_i2c_device(address, **kwargs)
 
             
-
-
     def begin(self):
-        """Start taking temperature measurements. Returns True if the device is 
-        intialized, False otherwise.
-        """
-        # Check manufacturer and device ID match expected values.
-        mid1 = self.sensor.readU16BE(MCP9808_MANIFACTURER_ID)
-        did1 = self.sensor.readU16BE(MCP9808_DEVICE_ID_REVISION)
-        #self._logger.debug('Read manufacturer ID: {0:04X}'.format(mid1))
-        #self._logger.debug('Read device ID: {0:04X}'.format(did1))
-        return mid1 == 0x0054 and did1 == 0x0400
 
-    def readTempC(self):
-        """Read sensor and return its value in degrees celsius."""
-        # Read temperature register value.
+        manifacturer_id = self.sensor.readU16BE(MCP9808_MANIFACTURER_ID)
+        device_id = self.sensor.readU16BE(MCP9808_DEVICE_ID_REVISION)
+
+        return manifacturer_id == 0x0054 and device_id == 0x0400
+
+    def read_temp(self):
         tempFormDev1 = self.sensor.readU16BE(MCP9808_T_AMBIENT)
-        #self._logger.debug('Device 1 temp: 0x{0:04X}'.format(tempFormDev1  & 0xFFFF))
-        #self._logger.debug('Device 1 temp: 0x{0:04X}'.format(tempFormDev2  & 0xFFFF))
-        # Scale and convert to signed value.
+
         temp = (tempFormDev1 & 0x0FFF) / 16.0
         if tempFormDev1 & 0x1000:
             temp -= 256.0
         return temp
+
