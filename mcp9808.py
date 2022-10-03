@@ -71,3 +71,17 @@ class MCP9808(object):
             temp -= 256.0
         return temp
 
+    def set_resolution(self,value):
+        #resulution value --> 0 for +0.5 degree,1 for +0.25,2 for +0.125 and 3 for +0.06245
+        if(value==0):
+            self.sensor.write8(MCP9808_RESOULTION,0x00)
+        elif(value==1):
+            self.sensor.write8(MCP9808_RESOULTION,0x01)
+        elif(value==2):
+            self.sensor.write8(MCP9808_RESOULTION,0x02)
+        else:
+            self.sensor.write8(MCP9808_RESOULTION,0x03)
+
+    def get_resolution(self):
+        res=self.sensor.readU8(MCP9808_RESOULTION)
+        return "Resoultion resolution is from register : 0x0"+str(res)
