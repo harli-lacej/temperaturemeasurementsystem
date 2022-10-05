@@ -10,6 +10,7 @@ st = time.time()
 sensor = MCP9808.MCP9808(0x18)
 sensor2 = MCP9808.MCP9808(0x19)
 
+
 def insert_varibles_into_table(deviceID,temperature):
     try:
         connection = mysql.connector.connect(
@@ -35,8 +36,13 @@ def insert_varibles_into_table(deviceID,temperature):
             connection.close()
 
 
-sensor.set_resolution(3)
-sensor2.set_resolution(3)
+sensor.set_resolution(0)
+sensor2.set_resolution(0)
+sensor.low_power_mode(False)
+print(sensor2.get_status())
+print(sensor.get_status())
+
+
 
 def get_data():
     i=0
@@ -44,9 +50,9 @@ def get_data():
     for i in range(50):
 
         if(sensor.begin() == True):
-            temp = sensor.read_temp()
+            temp = sensor.get_temp()
             insert_varibles_into_table(1,temp)
-            print("Device 1:",temp)
+            print("Device 1 | ",temp)
 
 def get_data2():
 
@@ -54,13 +60,9 @@ def get_data2():
     for a in range(50):
 
         if(sensor2.begin() == True):
-            temp2 = sensor2.read_temp()
+            temp2 = sensor2.get_temp()
             insert_varibles_into_table(2,temp2)
-            print("Device 2:",temp2)
-
-
-
-
+            print("Device 2 | ",temp2)
 
 thread1 = threading.Thread(target=get_data, args=())
 thread1.start()
