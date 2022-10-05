@@ -1,25 +1,6 @@
-import logging
 import math
 import Adafruit_GPIO.I2C as i2c
 
-
-'''
-    """Setting constant variables,the variables contain the values of the i2c address of the 
-    MCP9808 sensors as hexadecimal values.
-    """
-'''
-
-MCP9808_ADDRESS_1 = 0x18
-MCP9808_ADDRESS_2 = 0x19
-MCP9808_ADDRESS_3 = 0x1A
-MCP9808_ADDRESS_4 = 0x1B
-
-'''
-
-    """Setting the values for the registers
-
-    """
-'''
 MCP9808_CONFIG = 0x01
 MCP9808_T_UPPER = 0x02
 MCP9808_T_LOWER = 0x03
@@ -29,7 +10,6 @@ MCP9808_MANIFACTURER_ID = 0x06
 MCP9808_DEVICE_ID_REVISION = 0x07
 MCP9808_RESOULTION = 0x08
 
-# Configuration register values.
 MCP9808_SHUTDOWN = 0x0100
 MCP9808_NO_T_CIRT = 0x0080
 MCP9808_NO_T_UPPER_LOWER = 0x0040
@@ -40,48 +20,72 @@ MCP9808_ALERT_OUT_SELECT = 0x0002
 MCP9808_ALERT_OUT_POLARITY= 0x0002
 MCP9808_ALERT_OUT_INTERRUPT = 0x0001
 
+class MCP9808(object):
+    """_summary_
 
-'''
-    """Creating a class named MCP9808 to represent the temperature sensor MCP9808
+    :param object: _description_
+    :type object: _type_
     """
 
-'''
-
-
-class MCP9808(object):
-
-
     def __init__(self,address,**kwargs):
-            self.address=address
-            self.sensor = i2c.get_i2c_device(address, **kwargs)
+        """The **__init__** method represents the constructor method.
+        """
+        self.address=address
+        self.sensor = i2c.get_i2c_device(address, **kwargs)
 
             
     def begin(self):
-
         manifacturer_id = self.sensor.readU16BE(MCP9808_MANIFACTURER_ID)
         device_id = self.sensor.readU16BE(MCP9808_DEVICE_ID_REVISION)
 
         return manifacturer_id == 0x0054 and device_id == 0x0400
 
-    def read_temp(self):
-        tempFormDev1 = self.sensor.readU16BE(MCP9808_T_AMBIENT)
+    def get_temp(self):
+        sensor_temp = self.sensor.readU16BE(MCP9808_T_AMBIENT)
 
-        temp = (tempFormDev1 & 0x0FFF) / 16.0
-        if tempFormDev1 & 0x1000:
+        temp = (sensor_temp & 0x0FFF) / 16.0
+        if sensor_temp & 0x1000:
             temp -= 256.0
         return temp
 
-    def set_resolution(self,value):
-        #resulution value --> 0 for +0.5 degree,1 for +0.25,2 for +0.125 and 3 for +0.06245
-        if(value==0):
+    def set_resolution(self,res_value):
+        if(res_value==0):
             self.sensor.write8(MCP9808_RESOULTION,0x00)
-        elif(value==1):
+        elif(res_value==1):
             self.sensor.write8(MCP9808_RESOULTION,0x01)
-        elif(value==2):
+        elif(res_value==2):
             self.sensor.write8(MCP9808_RESOULTION,0x02)
         else:
             self.sensor.write8(MCP9808_RESOULTION,0x03)
 
     def get_resolution(self):
         res=self.sensor.readU8(MCP9808_RESOULTION)
-        return "Resoultion resolution is from register : 0x0"+str(res)
+        if(res==0):
+            return "Resoultion: +0.5°C,Conversion time: 30 ms typical"
+        elif(res==1):
+            return "Resolution: +0.25°C,Conversion time: 65 ms typical"
+        elif(res==2):
+            return "Resolution: +0.125°C,Conversion time: 130 ms typical"
+        else:
+            return "Resolution: +0.0625°C,Conversion time:  250 ms typical"
+
+    def low_power_mode(self,status):
+        if(status==True):
+            self.sensor.write16(MCP9808_CONFIG,MCP9808_SHUTDOWN)
+        else:
+            self.sensor.write16(MCP9808_CONFIG,0x0000)
+
+    def get_status(self):
+        status=self.sensor.readU16BE(MCP9808_CONFIG)
+        if(status==1):
+            return "Low power mode activated"
+        else:
+            return "Power on mode activated"
+
+    def get_device_id(self):
+        device_id = self.sensor.readU16BE(MCP9808_DEVICE_ID_REVISION)
+        return "Device ID: "+str(hex(device_id))
+
+    def get_manifacturer_id(self):
+        manifacturer_id = self.sensor.readU16BE(MCP9808_MANIFACTURER_ID)
+        return "Manifacturer ID: "+str(hex(manifacturer_id))
