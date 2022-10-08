@@ -3,8 +3,6 @@ import mysql.connector
 import time
 import threading
 
-
-
 st = time.time()
 
 sensor = MCP9808.MCP9808(0x18)
@@ -12,6 +10,9 @@ sensor2 = MCP9808.MCP9808(0x19)
 
 
 def insert_varibles_into_table(deviceID,temperature):
+    """
+    Function makes a insert in DB
+    """
     try:
         connection = mysql.connector.connect(
         host="htl-projekt.com",
@@ -38,10 +39,6 @@ def insert_varibles_into_table(deviceID,temperature):
 
 sensor.set_resolution(0)
 sensor2.set_resolution(0)
-sensor.low_power_mode(False)
-print(sensor2.get_status())
-print(sensor.get_status())
-
 
 
 def get_data():
