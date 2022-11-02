@@ -2,27 +2,22 @@ from mcp9808 import mcp9808 as MCP9808
 import mysql.connector
 import time
 import threading
-
-st = time.time()
-
-sensor = MCP9808.MCP9808(0x18)
-sensor2 = MCP9808.MCP9808(0x19)
-
+import os
+import subprocess
+import re
+from prettytable import PrettyTable
 
 def insert_varibles_into_table(deviceID,temperature):
-    """
-    Function makes a insert in DB
-    """
     try:
         connection = mysql.connector.connect(
         host="htl-projekt.com",
         user="harlilacej",
         password="!Insy_2021$",
         port=33060,
-        database="2023_5ay_harlilacej_ecoSense_tempeature"
+        database="2023_EcoSense_DA"
         )
         cursor = connection.cursor()
-        mySql_insert_query = """INSERT INTO temperature (deviceID,temperature) VALUES (%s,%s) """
+        mySql_insert_query = '''INSERT INTO temperature(deviceID,temperature) VALUES (%s,%s) '''
 
         record = (deviceID,temperature)
         cursor.execute(mySql_insert_query, record)
@@ -36,30 +31,71 @@ def insert_varibles_into_table(deviceID,temperature):
             cursor.close()
             connection.close()
 
+p = subprocess.Popen(['i2cdetect', '-y','1'],stdout=subprocess.PIPE,)
+possible_address=["18","19","1A","1B","1C","1D","1E","1F"]
+address_list=[]
+for i in range(0,9):
+  line = str(p.stdout.readline())
+  for match in re.finditer(" [0-9]{2}", line):    
+    sensor_address=match.group(0)
+    address_list.append(sensor_address)
 
-sensor.set_resolution(0)
-sensor2.set_resolution(0)
+for i in range(0,len(address_list)):
+    globals()[f'sensor{i}']=MCP9808.MCP9808(int(address_list[i],16))
 
+print("+----------+-------------+")
+print("| DeviceID | Temperature |")
+print("+----------+-------------+")
+t = PrettyTable(['DeviceID', 'Temperature'])
+t.align['DeviceID'] = 'l'
+t.align['Temperature'] = 'r'
+t.hrules = 1
 
-def get_data():
-    i=0
+if 'sensor0' in globals():
+    sensor0.set_resolution(3)
+    def get_data():
+        i=0
 
-    for i in range(50):
+        for i in range(50):
 
-        if(sensor.begin() == True):
-            temp = sensor.get_temp()
-            insert_varibles_into_table(1,temp)
-            print("Device 1 | ",temp)
+            if(sensor0.begin() == True):
+                temp = sensor0.get_temp()
+                insert_varibles_into_table(1,temp)
+                t.add_row(['1',temp])
+                print( "\n".join(t.get_string().splitlines()[-2:]) )
+if 'sensor1' in globals():
+    sensor1.set_resolution(3)
+    def get_data2():
+        a=0
+        for a in range(50):
 
-def get_data2():
+            if(sensor1.begin() == True):
+                temp1 = sensor1.get_temp()
+                insert_varibles_into_table(2,temp1)
+                t.add_row(['2',temp1])
+                print( "\n".join(t.get_string().splitlines()[-2:]) )
+if 'sensor2' in globals():
+    sensor2.set_resolution(3)
+    def get_data3():
+        a=0
+        for a in range(50):
 
-    a=0
-    for a in range(50):
+            if(sensor2.begin() == True):
+                temp2 = sensor2.get_temp()
+                insert_varibles_into_table(3,temp2)
+                t.add_row(['3',temp2])
+                print( "\n".join(t.get_string().splitlines()[-2:]) )
+if 'sensor3' in globals():
+    sensor3.set_resolution(3)
+    def get_data4():
+        a=0
+        for a in range(50):
 
-        if(sensor2.begin() == True):
-            temp2 = sensor2.get_temp()
-            insert_varibles_into_table(2,temp2)
-            print("Device 2 | ",temp2)
+            if(sensor3.begin() == True):
+                temp3 = sensor3.get_temp()
+                insert_varibles_into_table(4,temp3)
+                t.add_row(['4',temp4])
+                print( "\n".join(t.get_string().splitlines()[-2:]) )
 
 thread1 = threading.Thread(target=get_data, args=())
 thread1.start()
@@ -68,10 +104,3 @@ thread2.start()
 
 thread1.join()
 thread2.join()
-
-
-et = time.time()
-
-# get the execution time
-elapsed_time = et - st
-print('Execution time:', elapsed_time, 'seconds')
