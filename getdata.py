@@ -1,4 +1,13 @@
-from mcp9808 import mcp9808 as MCP9808
+__author__ = "Harli Lacej"
+__copyright__ = "Copyright 2022, ecoSense Dipomarbeit"
+__license__ = "MIT License"
+__version__ = "1.2"
+__email__ = "harlac17@htl-shkoder.com"
+
+#importing MCP9808 sensor libary
+from mcp9808 import mcp9808 as MCP9808  
+
+#importing other libraries needed for the program
 import mysql.connector
 import supervisor
 import time
@@ -8,25 +17,38 @@ import subprocess
 import re
 from prettytable import PrettyTable
 
+
+#function to create a connection to the database and insert data 
 def insert_varibles_into_table(deviceID,temperature):
+    #setting variables for the connection
+    hostname="htl-projekt.com"
+    username="harlilacej"
+    passwd="!Insy_2021$"
+    tcpip_port=33060 #port for remote access
+    database_name="2023_EcoSense_DA"
+    
+    #trying to establish a connetion with the database uisng login data
     try:
         connection = mysql.connector.connect(
-        host="htl-projekt.com",
-        user="harlilacej",
-        password="!Insy_2021$",
-        port=33060,
-        database="2023_EcoSense_DA"
+        host=hostname,
+        user=username,
+        password=passwd,
+        port=tcpip_port,
+        database=databasename
         )
         cursor = connection.cursor()
+        #inserting values given in tha function as parameters
         mySql_insert_query = '''INSERT INTO temperature(deviceID,temperature) VALUES (%s,%s) '''
 
         record = (deviceID,temperature)
         cursor.execute(mySql_insert_query, record)
         connection.commit()
-
+    
+    #will be executed if a error is detected in the connection
     except mysql.connector.Error as error:
         print("Failed to insert into MySQL table {}".format(error))
 
+    #closing the connection with the database
     finally:
         if connection.is_connected():
             cursor.close()
