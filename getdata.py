@@ -17,18 +17,20 @@ import subprocess
 import re
 from prettytable import PrettyTable
 import requests
-import socket
+import ipinfo
+import functools
+
 
 
 
 #function to create a connection to the database and insert data 
 def insert_varibles_into_table(deviceID,temperature,product_id,location):
     #setting variables for the connection
-    hostname="db4free.net"
+    hostname="htl-projekt.com"
     username="harlilacej"
     passwd="!Insy_2021$"
-    tcpip_port=3306 #port for remote access
-    database_name="ecosense2023"
+    tcpip_port=33060 #port for remote access
+    database_name="2023_EcoSense_DA"
     
     #trying to establish a connetion with the database uisng login data
     try:
@@ -41,7 +43,7 @@ def insert_varibles_into_table(deviceID,temperature,product_id,location):
         )
         cursor = connection.cursor()
         #inserting values given in tha function as parameters
-        mySql_insert_query = '''INSERT INTO temperature(deviceID,temperature,product_id,location) VALUES (%s,%s,%s,%s) '''
+        mySql_insert_query = '''INSERT INTO Temperatur(deviceID,temperature,product_id,location) VALUES (%s,%s,%s,%s) '''
 
         record = (deviceID,temperature,product_id,location)
         cursor.execute(mySql_insert_query, record)
@@ -87,23 +89,27 @@ def get_ip():
     return api_response["ip"]
 
 #defining a function to get the location of of a IP-Address
+@functools.lru_cache()
 def get_location():
-    # saving the IP address(result of the function created)
+    access_token = '457461b96183e9'
+    handler = ipinfo.getHandler(access_token)
     ip_address = get_ip()
-    #saving the result of the REST-API.Using the IP as parameter for the URL
-    response = requests.get(f'https://ipapi.co/{ip_address}/json/').json()
-    location_data = {
-    "city": response.get("city"),
-    "country": response.get("country_name")
-    }
-    #returning the json array with the location data for the ip address
-    return location_data
+    details = handler.getDetails(ip_address)
+    return details.city+","+details.country
+
 
 #calling the function scan
 device=scan()
 #Console output header section
 print(device)
 
+#getting the serial number of the Raspberry Pi to use as Product ID(unique Indetifier)
+serial_number = os.popen("cat /proc/cpuinfo | grep Serial | awk '{print $3}'").read().strip()
+    
+#saving the function return in the variable
+#result=get_location()
+#saving the Location of the IP-Address as a string contraining city and country
+ip_location=get_location()
 print("+----------+-------------+")
 print("| DeviceID | Temperature |")
 print("+----------+-------------+")
@@ -134,14 +140,6 @@ while True:
         del devices[address]
         # printing an output
         print(f"Removed device {address}. It was not found while scanning.")
-
-    #getting the serial number of the Raspberry Pi to use as Product ID(unique Indetifier)
-    serial_number = os.popen("cat /proc/cpuinfo | grep Serial | awk '{print $3}'").read().strip()
-    
-    #saving the function return in the variable
-    result=get_location()
-    #saving the Location of the IP-Address as a string contraining city and country
-    ip_location=list(result.values())[0]+","+list(result.values())[1]
     
     #customizing the the output table using prettytable
     t = PrettyTable(['DeviceID', 'Temperature'])
