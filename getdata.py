@@ -1,7 +1,7 @@
 __author__ = "Harli Lacej"
-__copyright__ = "Copyright 2022, ecoSense Dipomarbeit"
+__copyright__ = "Copyright 2023, ecoSense Dipomarbeit"
 __license__ = "MIT License"
-__version__ = "1.2"
+__version__ = "1.3"
 __email__ = "harlac17@htl-shkoder.com"
 
 #importing MCP9808 sensor libary
@@ -19,9 +19,6 @@ from prettytable import PrettyTable
 import requests
 import ipinfo
 import functools
-
-
-
 
 #function to create a connection to the database and insert data 
 def insert_varibles_into_table(deviceID,temperature,product_id,location):
@@ -81,16 +78,17 @@ def scan():
                 
     return address_list
 
-#defining a function to get the ip of the device
+#defining a function to get the ip address
 def get_ip():
-    #saving the response of the REST API in a variable
+    #saving the response in a variable
     api_response = requests.get('https://api64.ipify.org?format=json').json()
-    #return from the response only the ip of the device
     return api_response["ip"]
 
-#defining a function to get the location of of a IP-Address
+#saving api call result in cache
 @functools.lru_cache()
+#defining a function to get the location of the found ip address
 def get_location():
+    #using a library to access the location finder API
     access_token = '457461b96183e9'
     handler = ipinfo.getHandler(access_token)
     ip_address = get_ip()
