@@ -63,14 +63,14 @@ def scan():
     #creating a subprocess that uses as argument a command to detect i2c addresses in a bus
     p = subprocess.Popen(['i2cdetect', '-y','1'],stdout=subprocess.PIPE,)
     #defining all possible address that MCP8908 use
-    possible_address=["18","19","1A","1B","1C","1D","1E","1F"]
+    possible_address=["18","19","1a","1b","1c","1d","1e","1f"]
 
     #interating for 8 times,if all sensors are present in the bus
     for i in range(0,7):
         #taking the output of the subprocess
         line = str(p.stdout.readline())
         #using RegEx to filter addresses from the output
-        for match in re.finditer(" [0-9]{2}", line):    
+        for match in re.finditer(" (?<!-)[0-9a-fA-F]{2}(?=\s)", line):    
             sensor_address=match.group(0)
             if sensor_address not in address_list:
                 #adding addresses in the list
@@ -184,8 +184,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
                     
     #if a object called " 1A" is created the code inside the if will be exectued                    
-    if ' 1A' in devices:
-        device3=devices[' 1A']
+    if ' 1a' in devices:
+        device3=devices[' 1a']
         #setting the resolution of temperature values
         device3.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -203,8 +203,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
                 
     #if a object called " 1B" is created the code inside the if will be exectued      
-    if ' 1B' in devices:
-        device4=devices[' 1B']
+    if ' 1b' in devices:
+        device4=devices[' 1b']
         #setting the resolution of temperature values
         device4.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -222,8 +222,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
                     
     #if a object called " 1C" is created the code inside the if will be exectued  
-    if ' 1C' in devices:
-        device5=devices[' 1C']
+    if ' 1c' in devices:
+        device5=devices[' 1c']
         #setting the resolution of temperature values
         device5.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -241,8 +241,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
             
     #if a object called " 1D" is created the code inside the if will be exectued  
-    if ' 1D' in devices:
-        device6=devices[' 1D']
+    if ' 1d' in devices:
+        device6=devices[' 1d']
         #setting the resolution of temperature values
         device6.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -260,8 +260,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
     
     #if a object called " 1E" is created the code inside the if will be exectued  
-    if ' 1E' in devices:
-        device7=devices[' 1E']
+    if ' 1e' in devices:
+        device7=devices[' 1e']
         #setting the resolution of temperature values
         device7.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -279,8 +279,8 @@ while True:
                 print( "\n".join(t.get_string().splitlines()[-2:]))
                     
     #if a object called " 1F" is created the code inside the if will be exectued  
-    if ' 1F' in devices:
-        device8=devices[' 1F']
+    if ' 1f' in devices:
+        device8=devices[' 1f']
         #setting the resolution of temperature values
         device8.set_resolution(3)
         #defing a function to get data from the sensor,display them and insert in database
@@ -305,22 +305,22 @@ while True:
     if ' 19' in devices:
         thread2= threading.Thread(target=get_data2, args=())
         thread2.start()
-    if ' 1A' in devices:
+    if ' 1a' in devices:
         thread3= threading.Thread(target=get_data3, args=())
         thread3.start()
-    if ' 1B' in devices:
+    if ' 1b' in devices:
         thread4= threading.Thread(target=get_data4, args=())
         thread4.start()
-    if ' 1C' in devices:
+    if ' 1c' in devices:
         thread5= threading.Thread(target=get_data5, args=())
         thread5.start()
-    if ' 1D' in devices:
+    if ' 1d' in devices:
         thread6= threading.Thread(target=get_data6, args=())
         thread6.start()
-    if ' 1E' in devices:
+    if ' 1e' in devices:
         thread7= threading.Thread(target=get_data7, args=())
         thread7.start()
-    if ' 1F' in devices:
+    if ' 1f' in devices:
         thread8= threading.Thread(target=get_data8, args=())
         thread8.start()
         
