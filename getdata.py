@@ -23,11 +23,12 @@ import functools
 #function to create a connection to the database and insert data 
 def insert_varibles_into_table(deviceID,temperature,product_id,location):
     #setting variables for the connection
-    hostname="htl-projekt.com"
-    username="harlilacej"
-    passwd="!Insy_2021$"
+    #set your own values here
+    hostname="x"
+    username="x"
+    passwd="ohh...thats a secret but try to guess"
     tcpip_port=33060 #port for remote access
-    database_name="2023_EcoSense_DA"
+    database_name="x"
     
     #trying to establish a connetion with the database uisng login data
     try:
